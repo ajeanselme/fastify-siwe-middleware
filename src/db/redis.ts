@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import Redis from "ioredis";
+import { config } from "../config";
 
 let redisClient: Redis | null = null;
 let hasErrorHandler = false;
@@ -7,10 +8,10 @@ let hasErrorHandler = false;
 export function redis(): Redis {
   if (!redisClient) {
     redisClient = new Redis({
-      host: process.env.REDIS_HOST || "localhost",
-      port: parseInt(process.env.REDIS_PORT || "6379"),
-      password: process.env.REDIS_PASSWORD || undefined,
-      db: parseInt(process.env.REDIS_DATABASE || "0"),
+      host: config.REDIS_HOST || "localhost",
+      port: config.REDIS_PORT ?? 6379,
+      password: config.REDIS_PASSWORD || undefined,
+      db: config.REDIS_DATABASE ?? 0,
       lazyConnect: true,
     });
   }
