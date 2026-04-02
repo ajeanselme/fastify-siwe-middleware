@@ -1,5 +1,6 @@
 import fastify from "fastify";
 import { connectRedis } from "./db/redis";
+import { nonceRoute } from "./routes/nonce";
 
 const app = fastify({ logger: true });
 
@@ -13,6 +14,7 @@ const start = async () => {
     process.loadEnvFile("./.env");
     await connectRedis(app);
 
+    await app.register(nonceRoute);
     await app.listen({ port: 3000 });
   } catch (err) {
     app.log.error(err);
