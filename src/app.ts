@@ -1,6 +1,9 @@
 import fastify from "fastify";
 import { connectRedis } from "./db/redis";
+import { connectPostgres, disconnectPostgres } from "./db/client";
+import { runMigrations } from "./db/migrate";
 import { nonceRoute } from "./routes/nonce";
+import { config } from "./config";
 
 const app = fastify({ logger: true });
 
@@ -9,10 +12,19 @@ app.get("/", async (request, reply) => {
 });
 
 const start = async () => {
-
   try {
-    process.loadEnvFile("./.env");
+    app.log.info(
+      { allowedDomain: config.ALLOWED_DOMAIN, chainId: config.CHAIN_ID },
+      "Loaded config",
+    );
+
+    await runMigrations(app);
     await connectRedis(app);
+    await connectPostgres(app);
+
+    app.addHook("onClose", async () => {
+      await disconnectPostgres(app);
+    });
 
     await app.register(nonceRoute);
     await app.listen({ port: 3000 });
