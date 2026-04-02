@@ -1,19 +1,29 @@
 import fastify from "fastify";
+import fastifyJwt from "@fastify/jwt";
 import { pathToFileURL } from "node:url";
 import { connectRedis, disconnectRedis } from "./db/redis";
 import { connectPostgres, disconnectPostgres } from "./db/client";
 import { runMigrations } from "./db/migrate";
 import { nonceRoute } from "./routes/nonce";
+import { verifyRoute } from "./routes/verify";
 import { config } from "./config";
 
 export async function buildApp() {
   const app = fastify({ logger: true });
+
+  await app.register(fastifyJwt, {
+    secret: config.JWT_SECRET,
+    sign: {
+      expiresIn: "1h",
+    },
+  });
 
   app.get("/", async () => {
     return { hello: "world" };
   });
 
   await app.register(nonceRoute);
+  await app.register(verifyRoute);
 
   return app;
 }
@@ -44,7 +54,8 @@ export async function start() {
 }
 
 const isMainModule =
-  Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
+  Boolean(process.argv[1]) &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (isMainModule) {
   start();
