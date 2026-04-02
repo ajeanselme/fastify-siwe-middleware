@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { Pool, type PoolClient } from "pg";
-import { config } from "@/src/config";
+import { config } from "../config";
 
 function buildPostgresConnectionString() {
   const connection = new URL("postgresql://localhost");
