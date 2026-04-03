@@ -15,12 +15,10 @@ const configSchema = z.object({
   REDIS_PORT: z.coerce.number().int().optional(),
   REDIS_PASSWORD: z.string().min(1).optional(),
   REDIS_DATABASE: z.coerce.number().int().optional(),
-  JWT_PRIVATE_KEY: z.string().min(1).optional(),
-  JWT_PUBLIC_KEY: z.string().min(1).optional(),
+  JWT_SECRET: z.string().min(1),
   ALLOWED_DOMAIN: z.string().min(1),
   CHAIN_ID: z.coerce.number().int().optional(),
   RPC_URL: z.string().min(1).optional(),
-  JWT_SECRET: z.string().min(1),
 });
 
 export type Config = z.infer<typeof configSchema>;
