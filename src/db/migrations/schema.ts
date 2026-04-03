@@ -4,7 +4,7 @@ export const up = (pgm: MigrationBuilder) => {
   pgm.createExtension('pgcrypto', { ifNotExists: true });
   pgm.createTable('wallet_profiles', {
     address: { type: 'varchar(1000)', primaryKey: true },
-    ens_name: { type: 'varchar(1000)', notNull: true },
+    ens_name: { type: 'varchar(1000)', notNull: false },
     first_seen_at: {
       type: 'timestamp',
       notNull: true,
@@ -18,7 +18,10 @@ export const up = (pgm: MigrationBuilder) => {
     session_count: { type: 'integer', notNull: true, default: 0 },
   });
   pgm.createTable('sessions', {
-    id: 'id',
+    id: {
+      type: 'uuid',
+      primaryKey: true
+    },
     address: {
       type: 'varchar(1000)',
       notNull: true,
