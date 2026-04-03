@@ -7,6 +7,7 @@ import { runMigrations } from "./db/migrate";
 import { nonceRoute } from "./routes/nonce";
 import { verifyRoute } from "./routes/verify";
 import { config } from "./config";
+import { meRoute } from "./routes/me";
 
 export async function buildApp() {
   const app = fastify({ logger: true });
@@ -15,6 +16,7 @@ export async function buildApp() {
     secret: config.JWT_SECRET,
     sign: {
       expiresIn: "1h",
+      algorithm: "HS256",
     },
   });
 
@@ -24,6 +26,7 @@ export async function buildApp() {
 
   await app.register(nonceRoute);
   await app.register(verifyRoute);
+  await app.register(meRoute);
 
   return app;
 }
@@ -46,7 +49,7 @@ export async function start() {
       await disconnectRedis(app);
     });
 
-    await app.listen({ port: 3000 });
+    await app.listen({ port: 3001 });
   } catch (err) {
     app.log.error(err);
     process.exit(1);
