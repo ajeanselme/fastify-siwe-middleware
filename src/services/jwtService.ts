@@ -13,7 +13,7 @@ export const jwtService = {
     const sessionId = crypto.randomUUID();
     const accessToken = app.jwt.sign(
       { sub: normalizeAddress(address), sessionId },
-      { expiresIn: "15m" },
+      { expiresIn: "15m", iss: "siwe-middleware" },
     );
     const refreshToken = crypto.randomBytes(48).toString("base64url");
     // Store hashed refresh token in Postgres
