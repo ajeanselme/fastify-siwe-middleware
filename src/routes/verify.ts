@@ -1,10 +1,11 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
-import { SiweMessage } from "siwe/dist/client";
 import { config } from "../config";
 import { jwtService } from "../services/jwtService";
 import { nonceService } from "../services/nonceService";
+import { ensService } from "../services/ensService";
 import { sessionService } from "../services/sessionService";
 import { normalizeAddress } from "../utils/address";
+import { SiweMessage } from "siwe";
 
 export async function verifyRoute(app: FastifyInstance) {
   app.post(
@@ -49,7 +50,8 @@ export async function verifyRoute(app: FastifyInstance) {
         return { error: "Invalid nonce" };
       }
 
-      await sessionService.upsertProfile(address);
+      const ensName = await ensService.resolveName(address);
+      await sessionService.upsertProfile(address, ensName);
 
       const { accessToken, refreshToken } = await jwtService.issue(
         app,
