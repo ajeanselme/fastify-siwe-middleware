@@ -1,4 +1,5 @@
 import { db } from "../db/client";
+import { normalizeAddress } from "../utils/address";
 
 export const sessionService = {
   upsertProfile: (address: string) =>
@@ -6,7 +7,7 @@ export const sessionService = {
       `INSERT INTO wallet_profiles (address) VALUES ($1)
      ON CONFLICT (address) DO UPDATE SET last_seen_at = NOW()
      RETURNING *`,
-      [address.toLowerCase()],
+      [normalizeAddress(address)],
     ),
   invalidate: (sessionId: string) =>
     db.query(`UPDATE sessions SET revoked_at = NOW() WHERE id = $1`, [

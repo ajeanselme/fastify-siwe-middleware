@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
 import { nonceService } from "../services/nonceService";
+import { normalizeAddress } from "../utils/address";
 
 export async function nonceRoute(app: FastifyInstance) {
   app.get(
@@ -29,7 +30,7 @@ export async function nonceRoute(app: FastifyInstance) {
       reply,
     ) => {
       const { address } = request.query;
-      const nonce = await nonceService.create(address);
+      const nonce = await nonceService.create(normalizeAddress(address));
       return reply.send({ nonce });
     },
   );
