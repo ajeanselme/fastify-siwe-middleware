@@ -49,12 +49,13 @@ export async function verifyRoute(app: FastifyInstance) {
         return { error: "Invalid nonce" };
       }
 
-      const profile = await sessionService.upsertProfile(address);
+      await sessionService.upsertProfile(address);
+
       const { accessToken, refreshToken } = await jwtService.issue(
         app,
         address,
       );
-      return { accessToken, refreshToken, profile };
+      return { accessToken, refreshToken };
     },
   );
 }
