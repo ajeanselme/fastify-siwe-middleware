@@ -27,7 +27,12 @@ export async function verifyRoute(app: FastifyInstance) {
       reply,
     ) => {
       const { message, signature } = req.body;
-      const siweMsg = new SiweMessage(message);
+      let siweMsg: SiweMessage;
+      try {
+        siweMsg = new SiweMessage(message);
+      } catch {
+        return reply.code(401).send({ error: "Authentication failed" });
+      }
 
       if (siweMsg.domain !== config.ALLOWED_DOMAIN) {
         reply.code(400);
@@ -41,8 +46,17 @@ export async function verifyRoute(app: FastifyInstance) {
         return { error: "Invalid chain" };
       }
 
-      const { data } = await siweMsg.verify({ signature });
-      const address = normalizeAddress(data.address);
+      let address: string;
+      try {
+        const verification = await siweMsg.verify({ signature });
+        if (!verification.success) {
+          return reply.code(401).send({ error: "Authentication failed" });
+        }
+
+        address = normalizeAddress(verification.data.address);
+      } catch {
+        return reply.code(401).send({ error: "Authentication failed" });
+      }
 
       const stored = await nonceService.consume(address);
       if (!stored || stored !== siweMsg.nonce) {
