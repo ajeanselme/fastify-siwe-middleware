@@ -12,7 +12,10 @@ import { refreshRoute } from "./routes/refresh";
 import { logoutRoute } from "./routes/logout";
 
 export async function buildApp() {
-  const app = fastify({ logger: true });
+  const app = fastify({
+    logger: true,
+    bodyLimit: config.BODY_LIMIT_BYTES,
+  });
 
   await app.register(fastifyJwt, {
     secret: config.JWT_SECRET,

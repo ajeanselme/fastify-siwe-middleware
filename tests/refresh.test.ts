@@ -14,6 +14,7 @@ vi.mock("../src/config", () => ({
     ALLOWED_DOMAIN: "localhost",
     CHAIN_ID: 31337,
     JWT_SECRET: "test-secret",
+    BODY_LIMIT_BYTES: 8192,
   },
 }));
 

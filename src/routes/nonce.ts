@@ -9,9 +9,15 @@ export async function nonceRoute(app: FastifyInstance) {
       schema: {
         querystring: {
           type: "object",
+          additionalProperties: false,
           required: ["address"],
           properties: {
-            address: { type: "string", pattern: "^0x[a-fA-F0-9]{40}$" },
+            address: {
+              type: "string",
+              minLength: 42,
+              maxLength: 42,
+              pattern: "^0x[a-fA-F0-9]{40}$",
+            },
           },
         },
         response: {

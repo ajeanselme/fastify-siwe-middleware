@@ -18,6 +18,7 @@ vi.mock("../src/config", () => ({
 		ALLOWED_DOMAIN: "localhost",
 		CHAIN_ID: 31337,
 		JWT_SECRET: "test-secret",
+		BODY_LIMIT_BYTES: 8192,
 	},
 }));
 
@@ -136,7 +137,7 @@ test("POST /auth/verify returns 400 for an invalid nonce", async () => {
 	await app.close();
 });
 
-test("POST /auth/verify returns 401 for a malformed SIWE message", async () => {
+test("POST /auth/verify returns 400 for malformed input payload", async () => {
 	const app = await buildApp();
 
 	const res = await app.inject({
@@ -148,8 +149,8 @@ test("POST /auth/verify returns 401 for a malformed SIWE message", async () => {
 		},
 	});
 
-	expect(res.statusCode).toBe(401);
-	expect(res.json()).toEqual({ error: "Authentication failed" });
+	expect(res.statusCode).toBe(400);
+	expect(res.json().error).toBe("Bad Request");
 	expect(nonceService.consume).not.toHaveBeenCalled();
 	expect(sessionService.upsertProfile).not.toHaveBeenCalled();
 	expect(jwtService.issue).not.toHaveBeenCalled();

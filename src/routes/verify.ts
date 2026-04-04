@@ -14,10 +14,20 @@ export async function verifyRoute(app: FastifyInstance) {
       schema: {
         body: {
           type: "object",
+          additionalProperties: false,
           required: ["message", "signature"],
           properties: {
-            message: { type: "string" },
-            signature: { type: "string" },
+            message: {
+              type: "string",
+              minLength: 20,
+              maxLength: 4096,
+            },
+            signature: {
+              type: "string",
+              minLength: 132,
+              maxLength: 132,
+              pattern: "^0x[a-fA-F0-9]{130}$",
+            },
           },
         },
       },

@@ -9,9 +9,14 @@ export async function refreshRoute(app: FastifyInstance) {
       schema: {
         body: {
           type: "object",
+          additionalProperties: false,
           required: ["refreshToken"],
           properties: {
-            refreshToken: { type: "string" },
+            refreshToken: {
+              type: "string",
+              minLength: 16,
+              maxLength: 2048,
+            },
           },
         },
       },

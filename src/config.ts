@@ -19,6 +19,7 @@ const configSchema = z.object({
   ALLOWED_DOMAIN: z.string().min(1),
   CHAIN_ID: z.coerce.number().int().optional(),
   RPC_URL: z.string().min(1).optional(),
+  BODY_LIMIT_BYTES: z.coerce.number().int().positive().default(8192),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(60 * 60 * 24 * 7),
 });
 
