@@ -41,7 +41,10 @@ export async function refreshRoute(app: FastifyInstance) {
         );
         return { accessToken, refreshToken: newRefreshToken };
       } catch (err: unknown) {
-        if (err instanceof Error && err.message === "Invalid refresh token") {
+        if (
+          err instanceof Error &&
+          /refresh token/i.test(err.message)
+        ) {
           return reply.code(401).send({ error: "Invalid refresh token" });
         }
 
