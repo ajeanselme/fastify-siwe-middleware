@@ -3,10 +3,17 @@ import { jwtService } from "../services/jwtService";
 import { sessionService } from "../services/sessionService";
 
 export async function jwtGuard(req: FastifyRequest, reply: FastifyReply) {
-  const token = req.headers.authorization?.slice(7);
-  if (!token) {
+  const auth = req.headers.authorization;
+  if (!auth) {
     return reply.code(401).send({ error: "Missing token" });
   }
+
+  const match = auth.match(/^Bearer ([^\s]+)$/);
+  if (!match) {
+    return reply.code(401).send({ error: "Invalid token" });
+  }
+
+  const token = match[1];
 
   try {
     req.user = jwtService.verify(token);
