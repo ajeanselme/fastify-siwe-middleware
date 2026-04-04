@@ -1,8 +1,10 @@
 {
   "name": "web3-siwe-middleware",
+  "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "tsc --noEmit",
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean --out-dir dist",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
@@ -22,8 +24,25 @@
     "@types/pg": "^8.20.0",
     "ethers": "^6.16.0",
     "node-pg-migrate": "^8.0.4",
+    "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
-  }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "./src/types/fastify.ts"
+  ]
 }

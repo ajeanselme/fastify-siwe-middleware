@@ -4,6 +4,7 @@
         "module": "es2022",
         "isolatedModules": true,
         "skipLibCheck": true,
+        "ignoreDeprecations": "6.0",
         "paths": {
             "@/*": ["./*"]
         }
