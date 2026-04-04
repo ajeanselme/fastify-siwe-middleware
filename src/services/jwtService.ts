@@ -12,11 +12,21 @@ function hashToken(token: string) {
 }
 
 export const jwtService = {
+  issueAccessToken: async (
+    app: FastifyInstance,
+    address: string,
+    sessionId: string,
+  ) =>
+    app.jwt.sign(
+      { sub: normalizeAddress(address), sessionId, jti: crypto.randomUUID() },
+      { expiresIn: "15m", iss: "siwe-middleware" },
+    ),
   issue: async (app: FastifyInstance, address: string) => {
     const sessionId = crypto.randomUUID();
-    const accessToken = app.jwt.sign(
-      { sub: normalizeAddress(address), sessionId },
-      { expiresIn: "15m", iss: "siwe-middleware" },
+    const accessToken = await jwtService.issueAccessToken(
+      app,
+      address,
+      sessionId,
     );
     const refreshToken = crypto.randomBytes(48).toString("base64url");
     // Store hashed refresh token in Postgres

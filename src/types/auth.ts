@@ -6,4 +6,5 @@ export type AuthUser = {
 export type AuthJwtPayload = {
   sub: string;
   sessionId: string;
+  jti?: string;
 };

@@ -1,4 +1,4 @@
-import { db } from "../db/client";
+import { db, withClient } from "../db/client";
 import { normalizeAddress } from "../utils/address";
 import crypto from "crypto";
 
@@ -34,16 +34,49 @@ export const sessionService = {
       ])
       .then((result) => result.rows.length > 0),
   rotateRefreshToken: async (refreshToken: string) => {
-    const hash = crypto.createHash("sha256").update(refreshToken).digest("hex");
-    const result = await db.query(
-      `UPDATE sessions SET refresh_hash = $1, updated_at = NOW()
-       WHERE refresh_hash = $2 AND revoked_at IS NULL
-       RETURNING *`,
-      [hash, hash],
-    );
-    if (result.rows.length === 0) {
-      throw new Error("Invalid refresh token");
-    }
-    return result.rows[0];
+    const currentHash = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+    const nextRefreshToken = crypto.randomBytes(48).toString("base64url");
+    const nextHash = crypto
+      .createHash("sha256")
+      .update(nextRefreshToken)
+      .digest("hex");
+    return withClient(async (client) => {
+      await client.query("BEGIN");
+
+      try {
+        const currentSession = await client.query(
+          `UPDATE sessions
+           SET revoked_at = NOW()
+           WHERE refresh_hash = $1 AND revoked_at IS NULL
+           RETURNING address`,
+          [currentHash],
+        );
+
+        if (currentSession.rows.length === 0) {
+          throw new Error("Invalid refresh token");
+        }
+
+        const sessionId = crypto.randomUUID();
+        const nextSession = await client.query(
+          `INSERT INTO sessions (id, address, refresh_hash)
+           VALUES ($1, $2, $3)
+           RETURNING *`,
+          [sessionId, currentSession.rows[0].address, nextHash],
+        );
+
+        await client.query("COMMIT");
+
+        return {
+          session: nextSession.rows[0],
+          refreshToken: nextRefreshToken,
+        };
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      }
+    });
   },
 };
