@@ -31,8 +31,13 @@ export const jwtService = {
     const refreshToken = crypto.randomBytes(48).toString("base64url");
     // Store hashed refresh token in Postgres
     await db.query(
-      "INSERT INTO sessions (id, address, refresh_hash) VALUES ($1,$2,$3)",
-      [sessionId, normalizeAddress(address), hashToken(refreshToken)],
+      "INSERT INTO sessions (id, address, refresh_hash, expires_at) VALUES ($1, $2, $3, NOW() + ($4 * interval '1 second'))",
+      [
+        sessionId,
+        normalizeAddress(address),
+        hashToken(refreshToken),
+        config.REFRESH_TOKEN_TTL_SECONDS,
+      ],
     );
     return { accessToken, refreshToken };
   },

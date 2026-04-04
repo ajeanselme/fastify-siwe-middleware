@@ -64,3 +64,22 @@ test("POST /auth/refresh rotates refresh token without creating a new session", 
 
   await app.close();
 });
+
+test("POST /auth/refresh returns 401 for expired refresh token", async () => {
+  vi.mocked(sessionService.rotateRefreshToken).mockRejectedValueOnce(
+    new Error("Refresh token expired"),
+  );
+
+  const app = await buildApp();
+
+  const res = await app.inject({
+    method: "POST",
+    url: "/auth/refresh",
+    payload: { refreshToken: "expired-refresh-token" },
+  });
+
+  expect(res.statusCode).toBe(401);
+  expect(res.json()).toEqual({ error: "Invalid refresh token" });
+
+  await app.close();
+});

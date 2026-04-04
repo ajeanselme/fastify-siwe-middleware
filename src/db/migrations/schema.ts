@@ -38,6 +38,12 @@ export const up = (pgm: MigrationBuilder) => {
       type: 'timestamp',
       notNull: false,
     },
+    expires_at: {
+      type: "timestamp",
+      notNull: true,
+      default: pgm.func("current_timestamp + interval '30 days'"),
+    },
   });
   pgm.createIndex('sessions', 'address');
+  pgm.createIndex('sessions', 'expires_at');
 };

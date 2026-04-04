@@ -1,6 +1,7 @@
 import { db, withClient } from "../db/client";
 import { normalizeAddress } from "../utils/address";
 import crypto from "crypto";
+import { config } from "../config";
 
 export const sessionService = {
   getProfile: async (address: string) => {
@@ -29,9 +30,12 @@ export const sessionService = {
     ]),
   isActive: (sessionId: string) =>
     db
-      .query(`SELECT 1 FROM sessions WHERE id = $1 AND revoked_at IS NULL`, [
-        sessionId,
-      ])
+      .query(
+        `SELECT 1
+         FROM sessions
+         WHERE id = $1 AND revoked_at IS NULL AND expires_at > NOW()`,
+        [sessionId],
+      )
       .then((result) => result.rows.length > 0),
   rotateRefreshToken: async (refreshToken: string) => {
     const currentHash = crypto
@@ -50,7 +54,9 @@ export const sessionService = {
         const currentSession = await client.query(
           `UPDATE sessions
            SET revoked_at = NOW()
-           WHERE refresh_hash = $1 AND revoked_at IS NULL
+           WHERE refresh_hash = $1
+             AND revoked_at IS NULL
+             AND expires_at > NOW()
            RETURNING address`,
           [currentHash],
         );
@@ -61,10 +67,15 @@ export const sessionService = {
 
         const sessionId = crypto.randomUUID();
         const nextSession = await client.query(
-          `INSERT INTO sessions (id, address, refresh_hash)
-           VALUES ($1, $2, $3)
+          `INSERT INTO sessions (id, address, refresh_hash, expires_at)
+           VALUES ($1, $2, $3, NOW() + ($4 * interval '1 second'))
            RETURNING *`,
-          [sessionId, currentSession.rows[0].address, nextHash],
+          [
+            sessionId,
+            currentSession.rows[0].address,
+            nextHash,
+            config.REFRESH_TOKEN_TTL_SECONDS,
+          ],
         );
 
         await client.query("COMMIT");

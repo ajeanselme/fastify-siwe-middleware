@@ -135,3 +135,58 @@ test("POST /auth/verify returns 400 for an invalid nonce", async () => {
 
 	await app.close();
 });
+
+test("POST /auth/verify returns 401 for a malformed SIWE message", async () => {
+	const app = await buildApp();
+
+	const res = await app.inject({
+		method: "POST",
+		url: "/auth/verify",
+		payload: {
+			message: "not a valid siwe message",
+			signature: "0xdeadbeef",
+		},
+	});
+
+	expect(res.statusCode).toBe(401);
+	expect(res.json()).toEqual({ error: "Authentication failed" });
+	expect(nonceService.consume).not.toHaveBeenCalled();
+	expect(sessionService.upsertProfile).not.toHaveBeenCalled();
+	expect(jwtService.issue).not.toHaveBeenCalled();
+
+	await app.close();
+});
+
+test("POST /auth/verify returns 401 for an invalid signature", async () => {
+	const app = await buildApp();
+	const wallet = Wallet.createRandom();
+	const otherWallet = Wallet.createRandom();
+	const nonce = "nonceforinvalidsignature";
+
+	const message = new SiweMessage({
+		domain: "localhost",
+		address: wallet.address,
+		statement: "Sign in",
+		nonce,
+		chainId: 31337,
+		uri: "http://localhost",
+		version: "1",
+	});
+
+	const preparedMessage = message.prepareMessage();
+	const signature = await otherWallet.signMessage(preparedMessage);
+
+	const res = await app.inject({
+		method: "POST",
+		url: "/auth/verify",
+		payload: { message: preparedMessage, signature },
+	});
+
+	expect(res.statusCode).toBe(401);
+	expect(res.json()).toEqual({ error: "Authentication failed" });
+	expect(nonceService.consume).not.toHaveBeenCalled();
+	expect(sessionService.upsertProfile).not.toHaveBeenCalled();
+	expect(jwtService.issue).not.toHaveBeenCalled();
+
+	await app.close();
+});
