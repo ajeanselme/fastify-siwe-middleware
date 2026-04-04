@@ -8,6 +8,7 @@ import { nonceRoute } from "./routes/nonce";
 import { verifyRoute } from "./routes/verify";
 import { config } from "./config";
 import { meRoute } from "./routes/me";
+import { refreshRoute } from "./routes/refresh";
 
 export async function buildApp() {
   const app = fastify({ logger: true });
@@ -27,6 +28,7 @@ export async function buildApp() {
   await app.register(nonceRoute);
   await app.register(verifyRoute);
   await app.register(meRoute);
+  await app.register(refreshRoute);
 
   return app;
 }
