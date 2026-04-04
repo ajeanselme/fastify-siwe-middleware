@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
+import { config } from "../config";
 import { sessionService } from "../services/sessionService";
 import { jwtService } from "../services/jwtService";
 
@@ -6,6 +7,12 @@ export async function refreshRoute(app: FastifyInstance) {
   app.post(
     "/auth/refresh",
     {
+      config: {
+        rateLimit: {
+          max: config.REFRESH_RATE_LIMIT_MAX,
+          timeWindow: config.REFRESH_RATE_LIMIT_WINDOW_MS,
+        },
+      },
       schema: {
         body: {
           type: "object",

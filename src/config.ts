@@ -20,6 +20,14 @@ const configSchema = z.object({
   CHAIN_ID: z.coerce.number().int().optional(),
   RPC_URL: z.string().min(1).optional(),
   BODY_LIMIT_BYTES: z.coerce.number().int().positive().default(8192),
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(30),
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  NONCE_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+  NONCE_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  VERIFY_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
+  VERIFY_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  REFRESH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+  REFRESH_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(60 * 60 * 24 * 7),
 });
 

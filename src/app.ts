@@ -1,5 +1,6 @@
 import fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
+import fastifyRateLimit from "@fastify/rate-limit";
 import { pathToFileURL } from "node:url";
 import { connectRedis, disconnectRedis } from "./db/redis";
 import { connectPostgres, disconnectPostgres } from "./db/client";
@@ -23,6 +24,12 @@ export async function buildApp() {
       expiresIn: "1h",
       algorithm: "HS256",
     },
+  });
+
+  await app.register(fastifyRateLimit, {
+    global: true,
+    max: config.RATE_LIMIT_MAX,
+    timeWindow: config.RATE_LIMIT_WINDOW_MS,
   });
 
   app.get("/", async () => {

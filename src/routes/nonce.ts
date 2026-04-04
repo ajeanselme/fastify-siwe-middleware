@@ -1,4 +1,5 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
+import { config } from "../config";
 import { nonceService } from "../services/nonceService";
 import { normalizeAddress } from "../utils/address";
 
@@ -6,6 +7,12 @@ export async function nonceRoute(app: FastifyInstance) {
   app.get(
     "/auth/nonce",
     {
+      config: {
+        rateLimit: {
+          max: config.NONCE_RATE_LIMIT_MAX,
+          timeWindow: config.NONCE_RATE_LIMIT_WINDOW_MS,
+        },
+      },
       schema: {
         querystring: {
           type: "object",

@@ -11,6 +11,12 @@ export async function verifyRoute(app: FastifyInstance) {
   app.post(
     "/auth/verify",
     {
+      config: {
+        rateLimit: {
+          max: config.VERIFY_RATE_LIMIT_MAX,
+          timeWindow: config.VERIFY_RATE_LIMIT_WINDOW_MS,
+        },
+      },
       schema: {
         body: {
           type: "object",
