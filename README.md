@@ -150,6 +150,11 @@ Any API behind this auth service should:
 
 ## Public API
 
+Add the public API to your own backend project using:
+```
+npm install fastify-siwe-middleware
+```
+
 The package exports three middleware factories from the package root:
 
 - `jwtGuard`
