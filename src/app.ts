@@ -93,7 +93,7 @@ export async function start() {
       await disconnectRedis(app);
     });
 
-    await app.listen({ port: 3000 });
+    await app.listen({ port: 3000, host: config.HOST });
   } catch (err) {
     app.log.error(err);
     process.exit(1);

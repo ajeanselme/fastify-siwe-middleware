@@ -2,6 +2,12 @@
 
 Fastify middleware helpers for SIWE-based auth flows.
 
+Use this project as a dedicated auth microservice that can be shared by multiple frontends and/or APIs.
+
+- The auth service owns SIWE verification, session issuance, refresh rotation, and logout.
+- Your application services trust only the returned access token and do not re-implement wallet-signature verification.
+- The token issuer (`JWT_SECRET`, `ALLOWED_DOMAIN`, optional `CHAIN_ID`) is centralized in one place.
+
 **[Live Demo](https://fastify-siwe-middleware-front-demo.antoine.sh)**
 
 ## Self-host
@@ -37,6 +43,7 @@ Optional variables:
 - `REDIS_DATABASE`
 - `CHAIN_ID`
 - `RPC_URL`
+- `HOST` (default: `0.0.0.0`)
 - `BODY_LIMIT_BYTES`
 - `RATE_LIMIT_MAX`
 - `RATE_LIMIT_WINDOW_MS`
@@ -50,11 +57,96 @@ Optional variables:
 
 ### [Example compose setup](docker-compose.yml)
 
-## Install
+### Run as a complete reusable SIWE auth service
+
+Use this project as a dedicated auth microservice that can be shared by multiple frontends and/or APIs.
+
+- The auth service owns SIWE verification, session issuance, refresh rotation, and logout.
+- Your application services trust only the returned access token and do not re-implement wallet-signature verification.
+- The token issuer (`JWT_SECRET`, `ALLOWED_DOMAIN`, optional `CHAIN_ID`) is centralized in one place.
+
+#### Quick start (Docker Compose)
+
+1. Create a `.env` file in the project root:
 
 ```bash
-npm install fastify-siwe-middleware
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=siwe
+DB_PASSWORD=secret
+DB_DATABASE=siwe_auth
+REDIS_HOST=redis
+REDIS_PORT=6379
+JWT_SECRET=replace-with-a-long-random-secret
+ALLOWED_DOMAIN=localhost:3000
+CHAIN_ID=1
 ```
+
+2. Start the full stack:
+
+```bash
+docker compose up -d
+```
+
+3. Verify the service:
+
+```bash
+curl http://localhost:3000/
+curl http://localhost:3000/docs/json
+```
+
+The app container automatically runs DB migrations on startup.
+
+#### Quick start (run from source)
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Start PostgreSQL and Redis (for example with `docker compose up -d postgres redis`).
+
+3. Use the same `.env` variables as above, then start the server:
+
+```bash
+npm run start
+```
+
+For local development with auto-reload, use:
+
+```bash
+npm run dev
+```
+
+#### Reuse pattern for external applications
+
+Treat this service as your auth boundary and integrate with a standard token lifecycle:
+
+1. Frontend calls `GET /auth/nonce?address=0x...`.
+2. Frontend builds and signs a SIWE message with the nonce.
+3. Frontend calls `POST /auth/verify` with `{ message, signature }`.
+4. Frontend stores `accessToken` and `refreshToken` securely.
+5. Frontend sends `Authorization: Bearer <accessToken>` to protected backends.
+6. On `401` or access-token expiry, frontend calls `POST /auth/refresh`.
+7. On sign-out, frontend calls `DELETE /auth/logout` and clears local tokens.
+
+#### Backend integration contract
+
+Any API behind this auth service should:
+
+- Validate JWTs with the same `JWT_SECRET`.
+- Trust only server-issued claims, not wallet data sent directly by clients.
+- Optionally check active session state (recommended for immediate logout/revocation effects).
+
+#### Production hardening checklist
+
+- Use strong random secrets for `JWT_SECRET` and rotate them with a planned rollout.
+- Pin a specific container image tag instead of `latest`.
+- Put the service behind HTTPS and restrict CORS at your gateway.
+- Configure rate limits (`RATE_LIMIT_*`, `NONCE_RATE_LIMIT_*`, `VERIFY_RATE_LIMIT_*`, `REFRESH_RATE_LIMIT_*`) for expected traffic.
+- Use managed PostgreSQL/Redis with backups and monitoring.
+- Export and monitor logs/metrics for nonce, verify, refresh, and logout events.
 
 ## Public API
 
@@ -250,11 +342,3 @@ When running this application as an auth service, it exposes the routes below.
   - `RATE_LIMIT_MAX`
   - `RATE_LIMIT_WINDOW_MS`
 - Request body size is limited by `BODY_LIMIT_BYTES`.
-
-## Build
-
-```bash
-npm run build
-```
-
-This emits ESM, CommonJS, and declaration files in `dist/`.

@@ -29,6 +29,7 @@ const configSchema = z.object({
   REFRESH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   REFRESH_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   REFRESH_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(60 * 60 * 24 * 7),
+  HOST: z.string().default("0.0.0.0"),
 });
 
 export type Config = z.infer<typeof configSchema>;
