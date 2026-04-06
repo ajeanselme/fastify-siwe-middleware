@@ -1,6 +1,9 @@
 {
   "name": "fastify-siwe-middleware",
   "type": "module",
+  "version": "1.0.0",
+  "description": "A Fastify middleware for Sign-In With Ethereum (SIWE) authentication",
+  "author": "Antoine.sh",
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "start": "tsx src/app.ts",
