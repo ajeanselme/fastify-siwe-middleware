@@ -1,0 +1,57 @@
+name: Monthly Dependency Updates
+
+on:
+  schedule:
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install current dependencies
+        run: npm ci
+
+      - name: Upgrade dependencies
+        run: npx npm-check-updates@latest -u
+
+      - name: Install upgraded dependencies
+        run: npm install
+
+      - name: Run checks
+        run: |
+          npm run typecheck
+          npm test
+          npm run build
+
+      - name: Create dependency update PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(deps): monthly dependency updates"
+          title: "chore(deps): monthly dependency updates"
+          body: |
+            Automated monthly dependency refresh.
+
+            - Updated package.json and lockfile
+            - Ran typecheck, tests, and build in CI workflow
+          branch: ci/monthly-deps
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
