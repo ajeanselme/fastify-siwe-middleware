@@ -1,9 +1,39 @@
 {
   "name": "fastify-siwe-middleware",
-  "type": "module",
   "version": "1.0.0",
   "description": "A Fastify middleware for Sign-In With Ethereum (SIWE) authentication",
-  "author": "Antoine.sh",
+  "keywords": [
+    "fastify",
+    "siwe",
+    "middleware",
+    "auth"
+  ],
+  "homepage": "https://github.com/ajeanselme/fastify-siwe-middleware#readme",
+  "bugs": {
+    "url": "https://github.com/ajeanselme/fastify-siwe-middleware/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajeanselme/fastify-siwe-middleware.git"
+  },
+  "license": "ISC",
+  "author": "antoinedotsh",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "directories": {
+    "test": "tests"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsx watch src/app.ts",
     "start": "tsx src/app.ts",
@@ -35,19 +65,7 @@
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   },
-  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "sideEffects": [
     "./src/types/fastify.ts"
   ]
