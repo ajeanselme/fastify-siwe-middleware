@@ -1,4 +1,5 @@
 import { test, expect, vi } from "vitest";
+import { nonceService } from "../src/services/nonceService";
 import { buildApp } from "../src/app";
 
 vi.mock("../src/config", () => ({
@@ -17,6 +18,12 @@ vi.mock("../src/config", () => ({
   },
 }));
 
+vi.mock("../src/services/nonceService", () => ({
+  nonceService: {
+    create: vi.fn(async () => "a".repeat(64)),
+  },
+}));
+
 test("GET /auth/nonce returns a 64-char hex nonce", async () => {
   const app = await buildApp();
   const res = await app.inject({
@@ -25,6 +32,9 @@ test("GET /auth/nonce returns a 64-char hex nonce", async () => {
   });
   expect(res.statusCode).toBe(200);
   expect(res.json().nonce).toMatch(/^[a-f0-9]{64}$/);
+  expect(nonceService.create).toHaveBeenCalledWith(
+    "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+  );
   app.log.info({ nonce: res.json().nonce }, "Received nonce");
   await app.close();
 });
