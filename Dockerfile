@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install dependencies first to leverage layer caching.
 COPY package*.json ./
-RUN npm ci
+RUN npm i
 
 # Copy source and run as non-root for safer self-hosting defaults.
 COPY . .
