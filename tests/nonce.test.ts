@@ -1,5 +1,21 @@
-import { test, expect } from "vitest";
+import { test, expect, vi } from "vitest";
 import { buildApp } from "../src/app";
+
+vi.mock("../src/config", () => ({
+  config: {
+    DB_HOST: "localhost",
+    DB_PORT: 5432,
+    DB_USER: "postgres",
+    DB_PASSWORD: "postgres",
+    DB_DATABASE: "postgres",
+    REDIS_HOST: "localhost",
+    REDIS_PORT: 6379,
+    ALLOWED_DOMAIN: "localhost",
+    CHAIN_ID: 31337,
+    JWT_SECRET: "test-secret",
+    BODY_LIMIT_BYTES: 8192,
+  },
+}));
 
 test("GET /auth/nonce returns a 64-char hex nonce", async () => {
   const app = await buildApp();
