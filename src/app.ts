@@ -1,6 +1,8 @@
 import fastify from "fastify";
 import fastifyJwt from "@fastify/jwt";
 import fastifyRateLimit from "@fastify/rate-limit";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 import { pathToFileURL } from "node:url";
 import { connectRedis, disconnectRedis } from "./db/redis";
 import { connectPostgres, disconnectPostgres } from "./db/client";
@@ -30,6 +32,34 @@ export async function buildApp() {
     global: true,
     max: config.RATE_LIMIT_MAX,
     timeWindow: config.RATE_LIMIT_WINDOW_MS,
+  });
+
+  await app.register(fastifySwagger, {
+    openapi: {
+      info: {
+        title: "Fastify SIWE Auth API",
+        description: "Sign-In With Ethereum authentication endpoints",
+        version: "1.0.0",
+      },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+    },
+  });
+
+  await app.register(fastifySwaggerUi, {
+    routePrefix: "/docs",
+    uiConfig: {
+      docExpansion: "list",
+      deepLinking: true,
+    },
+    staticCSP: true,
   });
 
   app.get("/", async () => {
@@ -63,7 +93,7 @@ export async function start() {
       await disconnectRedis(app);
     });
 
-    await app.listen({ port: 3001 });
+    await app.listen({ port: 3000 });
   } catch (err) {
     app.log.error(err);
     process.exit(1);

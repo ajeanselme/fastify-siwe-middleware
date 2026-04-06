@@ -15,6 +15,28 @@ export async function meRoute(app: FastifyInstance) {
     "/auth/me",
     {
       preHandler: [authGuard],
+      schema: {
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            type: "object",
+            required: ["address", "ensName", "firstSeen", "sessionCount"],
+            properties: {
+              address: { type: "string" },
+              ensName: { type: ["string", "null"] },
+              firstSeen: { type: "string", format: "date-time" },
+              sessionCount: { type: "integer" },
+            },
+          },
+          401: {
+            type: "object",
+            required: ["error"],
+            properties: {
+              error: { type: "string" },
+            },
+          },
+        },
+      },
     },
     async (req, reply) => {
       const profile = await sessionService.getProfile(req.user.address);

@@ -1,8 +1,9 @@
 {
-  "name": "web3-siwe-middleware",
+  "name": "fastify-siwe-middleware",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/app.ts",
+    "start": "tsx src/app.ts",
     "build": "tsup src/index.ts --format esm,cjs --dts --clean --out-dir dist",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
@@ -10,6 +11,8 @@
   "dependencies": {
     "@fastify/jwt": "^10.0.0",
     "@fastify/rate-limit": "^10.3.0",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.5",
     "@signinwithethereum/siwe": "^4.1.0",
     "@types/node": "^25.5.0",
     "fastify": "^5.8.4",

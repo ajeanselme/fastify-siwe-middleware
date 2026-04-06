@@ -17,7 +17,7 @@ function buildPostgresConnectionString() {
 export const db = new Pool({
   connectionString: buildPostgresConnectionString(),
   options: config.DB_SCHEMA ? `-c search_path=${config.DB_SCHEMA}` : undefined,
-  application_name: "web3-siwe-middleware",
+  application_name: "fastify-siwe-middleware",
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 5_000,

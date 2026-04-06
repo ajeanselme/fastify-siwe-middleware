@@ -36,6 +36,30 @@ export async function verifyRoute(app: FastifyInstance) {
             },
           },
         },
+        response: {
+          200: {
+            type: "object",
+            required: ["accessToken", "refreshToken"],
+            properties: {
+              accessToken: { type: "string" },
+              refreshToken: { type: "string" },
+            },
+          },
+          400: {
+            type: "object",
+            required: ["error"],
+            properties: {
+              error: { type: "string" },
+            },
+          },
+          401: {
+            type: "object",
+            required: ["error"],
+            properties: {
+              error: { type: "string" },
+            },
+          },
+        },
       },
     },
     async (

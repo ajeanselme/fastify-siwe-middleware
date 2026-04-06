@@ -26,6 +26,30 @@ export async function refreshRoute(app: FastifyInstance) {
             },
           },
         },
+        response: {
+          200: {
+            type: "object",
+            required: ["accessToken", "refreshToken"],
+            properties: {
+              accessToken: { type: "string" },
+              refreshToken: { type: "string" },
+            },
+          },
+          401: {
+            type: "object",
+            required: ["error"],
+            properties: {
+              error: { type: "string" },
+            },
+          },
+          500: {
+            type: "object",
+            required: ["error"],
+            properties: {
+              error: { type: "string" },
+            },
+          },
+        },
       },
     },
     async (req: FastifyRequest<{ Body: { refreshToken: string } }>, reply) => {
