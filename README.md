@@ -2,6 +2,54 @@
 
 Fastify middleware helpers for SIWE-based auth flows.
 
+**[Live Demo](https://fastify-siwe-middleware-front-demo.antoine.sh)**
+
+## Self-host
+
+This project can be run as a standalone auth service. The application listens on port `3000`, runs migrations on startup, and requires PostgreSQL and Redis.
+
+Release builds are published as GitHub Container Registry images on each release. Use the release tag you want to pin to, or `latest` if you intentionally want the most recent release.
+
+### Docker image
+
+```bash
+docker pull ghcr.io/ajeanselme/fastify-siwe-middleware:latest
+```
+
+### Required environment variables
+
+The service requires these environment variables at startup:
+
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_DATABASE`
+- `REDIS_HOST`
+- `JWT_SECRET`
+- `ALLOWED_DOMAIN`
+
+Optional variables:
+
+- `DB_SCHEMA`
+- `REDIS_PORT`
+- `REDIS_PASSWORD`
+- `REDIS_DATABASE`
+- `CHAIN_ID`
+- `RPC_URL`
+- `BODY_LIMIT_BYTES`
+- `RATE_LIMIT_MAX`
+- `RATE_LIMIT_WINDOW_MS`
+- `NONCE_RATE_LIMIT_MAX`
+- `NONCE_RATE_LIMIT_WINDOW_MS`
+- `VERIFY_RATE_LIMIT_MAX`
+- `VERIFY_RATE_LIMIT_WINDOW_MS`
+- `REFRESH_RATE_LIMIT_MAX`
+- `REFRESH_RATE_LIMIT_WINDOW_MS`
+- `REFRESH_TOKEN_TTL_SECONDS`
+
+### [Example compose setup](docker-compose.yml)
+
 ## Install
 
 ```bash
@@ -202,78 +250,6 @@ When running this application as an auth service, it exposes the routes below.
   - `RATE_LIMIT_MAX`
   - `RATE_LIMIT_WINDOW_MS`
 - Request body size is limited by `BODY_LIMIT_BYTES`.
-
-## Self-host
-
-This project can be run as a standalone auth service. The application listens on port `3000`, runs migrations on startup, and requires PostgreSQL and Redis.
-
-Release builds are published as GitHub Container Registry images on each release. Use the release tag you want to pin to, or `latest` if you intentionally want the most recent release.
-
-### Docker image
-
-```bash
-docker pull ghcr.io/ajeanselme/fastify-siwe-middleware:latest
-```
-
-### Required environment variables
-
-The service requires these environment variables at startup:
-
-- `DB_HOST`
-- `DB_PORT`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_DATABASE`
-- `REDIS_HOST`
-- `JWT_SECRET`
-- `ALLOWED_DOMAIN`
-
-Optional variables:
-
-- `DB_SCHEMA`
-- `REDIS_PORT`
-- `REDIS_PASSWORD`
-- `REDIS_DATABASE`
-- `CHAIN_ID`
-- `RPC_URL`
-- `BODY_LIMIT_BYTES`
-- `RATE_LIMIT_MAX`
-- `RATE_LIMIT_WINDOW_MS`
-- `NONCE_RATE_LIMIT_MAX`
-- `NONCE_RATE_LIMIT_WINDOW_MS`
-- `VERIFY_RATE_LIMIT_MAX`
-- `VERIFY_RATE_LIMIT_WINDOW_MS`
-- `REFRESH_RATE_LIMIT_MAX`
-- `REFRESH_RATE_LIMIT_WINDOW_MS`
-- `REFRESH_TOKEN_TTL_SECONDS`
-
-### Example compose setup
-
-```yaml
-services:
-  app:
-    image: ghcr.io/ajeanselme/fastify-siwe-middleware:latest
-    ports: ["3000:3000"]
-    env_file: .env
-    depends_on: [postgres, redis]
-
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: siwe_auth
-      POSTGRES_USER: siwe
-      POSTGRES_PASSWORD: secret
-    volumes: [pg_data:/var/lib/postgresql/data]
-
-  redis:
-    image: redis:7-alpine
-    command: redis-server --save ""
-
-volumes:
-  pg_data:
-```
-
-If you prefer local builds, the included [docker-compose.yml](docker-compose.yml) still works unchanged.
 
 ## Build
 
