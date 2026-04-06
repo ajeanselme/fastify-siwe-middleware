@@ -29,10 +29,13 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm i
+        run: npm ci
 
       - name: Build package
         run: npm run build
+
+      - name: Test package
+        run: npm test
 
       - name: Verify release tag matches package version
         shell: bash
@@ -49,6 +52,4 @@ jobs:
           fi
 
       - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
