@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    env_file: .env
+    depends_on: [postgres, redis]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: siwe_auth
+      POSTGRES_USER: siwe
+      POSTGRES_PASSWORD: secret
+    volumes: [pg_data:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save ""
+
+volumes:
+  pg_data:
