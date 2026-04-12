@@ -1,6 +1,6 @@
 services:
   app:
-    image: ghcr.io/ajeanselme/fastify-siwe-middleware:latest
+    image: ghcr.io/antoine-sh/fastify-siwe-middleware:latest
     ports: ["3000:3000"]
     env_file: .env
     depends_on: [postgres, redis]
