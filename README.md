@@ -19,7 +19,7 @@ Release builds are published as GitHub Container Registry images on each release
 ### Docker image
 
 ```bash
-docker pull ghcr.io/ajeanselme/fastify-siwe-middleware:latest
+docker pull ghcr.io/antoine-sh/fastify-siwe-middleware:latest
 ```
 
 ### Required environment variables
